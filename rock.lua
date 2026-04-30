@@ -1959,7 +1959,7 @@ extraTab:AddButton("Jungle lift", function()
     VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
 end)
 
-local MusicTab = window:AddTab("M")
+
 
 local MP3_URL = ""
 local Playlist = {}
@@ -1989,7 +1989,7 @@ local function formatTime(sec)
 	return string.format("%02d:%02d", m, s)
 end
 
-local TimeLabel = MusicTab:AddLabel("â±ï¸ 00:00 / 00:00")
+local TimeLabel = extraTab:AddLabel("â±ï¸ 00:00 / 00:00")
 
 local function loadMP3(url)
 	if url == "" then return end
@@ -2041,17 +2041,17 @@ task.spawn(function()
 end)
 
 -- Controles
-MusicTab:AddTextBox(" MP3 URL", function(val)
+extraTab:AddTextBox(" MP3 URL", function(val)
 	MP3_URL = val
 end, {["clear"] = false})
 
-MusicTab:AddButton("Play", function()
+extraTab:AddButton("Play", function()
 	if MP3_URL ~= "" then
 		loadMP3(MP3_URL)
 	end
 end)
 
-MusicTab:AddButton("Continue", function()
+extraTab:AddButton("Continue", function()
 	if currentSound then
 		if isPaused then
 			isPaused = false
@@ -2062,21 +2062,21 @@ MusicTab:AddButton("Continue", function()
 	end
 end)
 
-MusicTab:AddButton("Pause", function()
+extraTab:AddButton("Pause", function()
 	if currentSound and currentSound.IsPlaying then
 		currentSound:Pause()
 		isPaused = true
 	end
 end)
 
-MusicTab:AddButton("Stop", function()
+extraTab:AddButton("Stop", function()
 	if currentSound then
 		currentSound:Stop()
 		isPaused = false
 	end
 end)
 
-MusicTab:AddTextBox("Volumen (0-5)", function(val)
+extraTab:AddTextBox("Volumen (0-5)", function(val)
 	if currentSound then
 		local num = tonumber(val)
 		if num then
@@ -2091,7 +2091,7 @@ MusicTab:AddButton("Toggle Loop", function()
 	end
 end)
 
-MusicTab:AddButton("Add to Playlist", function()
+extraTab:AddButton("Add to Playlist", function()
 	if MP3_URL ~= "" then
 		tempIndex = tempIndex + 1
 		local tempFile = "GenesisMusic_"..tempIndex..".mp3"
@@ -2104,14 +2104,14 @@ MusicTab:AddButton("Add to Playlist", function()
 	end
 end)
 
-MusicTab:AddButton("Play Playlist", function()
+extraTab:AddButton("Play Playlist", function()
 	if #Playlist > 0 then
 		currentIndex = 1
 		loadMP3(Playlist[currentIndex])
 	end
 end)
 
-MusicTab:AddButton("Next", function()
+extraTab:AddButton("Next", function()
 	if #Playlist > 0 then
 		currentIndex = currentIndex + 1
 		if currentIndex > #Playlist then currentIndex = 1 end
@@ -2119,7 +2119,7 @@ MusicTab:AddButton("Next", function()
 	end
 end)
 
-MusicTab:AddButton("Previous", function()
+extraTab:AddButton("Previous", function()
 	if #Playlist > 0 then
 		currentIndex = currentIndex - 1
 		if currentIndex < 1 then currentIndex = #Playlist end
@@ -2127,7 +2127,7 @@ MusicTab:AddButton("Previous", function()
 	end
 end)
 
-MusicTab:AddButton("Clear Playlist", function()
+extraTab:AddButton("Clear Playlist", function()
 	Playlist = {}
 	savePlaylist()
 	currentIndex = 0
