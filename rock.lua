@@ -1989,7 +1989,7 @@ local function formatTime(sec)
 	return string.format("%02d:%02d", m, s)
 end
 
-local TimeLabel = extraTab:AddLabel("â±ï¸ 00:00 / 00:00")
+local TimeLabel = extraTab:AddLabel("00:00 / 00:00")
 
 local function loadMP3(url)
 	if url == "" then return end
@@ -2006,7 +2006,7 @@ local function loadMP3(url)
 	end
 
 	currentSound = Instance.new("Sound")
-	currentSound.Name = "GenesisMP3Sound"
+	currentSound.Name = "papi karmaMP3Sound"
 	currentSound.Parent = SoundService
 	currentSound.SoundId = getcustomasset(tempFile)
 	currentSound.Volume = 1
@@ -2085,7 +2085,7 @@ extraTab:AddTextBox("Volumen (0-5)", function(val)
 	end
 end, {["clear"] = false})
 
-MusicTab:AddButton("Toggle Loop", function()
+extraTab:AddButton("Toggle Loop", function()
 	if currentSound then
 		currentSound.Looped = not currentSound.Looped
 	end
