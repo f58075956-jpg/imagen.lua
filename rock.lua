@@ -2450,60 +2450,7 @@ end)
 
 switch:Set(false)
 
-local player = game:GetService("Players").LocalPlayer
 
--- NaN Egg + Nan Size Combo
-local comboActive = false
-local eggLoop, characterAddedConn
-
-local function ensureEggEquipped()
-	if not comboActive or not player.Character then return end
-
-	-- Keep only 1 Protein Egg in hand
-	local eggsInHand = 0
-	for _, item in ipairs(player.Character:GetChildren()) do
-		if item.Name == "Protein Egg" then
-			eggsInHand += 1
-			if eggsInHand > 1 then
-				item.Parent = player.Backpack
-			end
-		end
-	end
-
-	-- Equip one if none
-	if eggsInHand == 0 then
-		local egg = player.Backpack:FindFirstChild("Protein Egg")
-		if egg then
-			egg.Parent = player.Character
-		end
-	end
-end
-
-local comboSwitch = KillingTab:AddSwitch("NaN (OP Egg + Nan Size Combo)", function(bool)
-	comboActive = bool
-
-	if bool then
-		changeSpeedSizeRemote:InvokeServer("changeSize", 0/0)
-
-		eggLoop = task.spawn(function()
-			while comboActive do
-				ensureEggEquipped()
-				task.wait(0.2)
-			end
-		end)
-
-		characterAddedConn = player.CharacterAdded:Connect(function(newChar)
-			task.wait(0.5)
-			ensureEggEquipped()
-		end)
-
-		ensureEggEquipped()
-	else
-		if eggLoop then task.cancel(eggLoop) end
-		if characterAddedConn then characterAddedConn:Disconnect() end
-	end
-end)
-comboSwitch:Set(false)
 
 
 -- Whitelist / Blacklist setup
