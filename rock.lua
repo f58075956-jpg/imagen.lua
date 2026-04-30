@@ -2048,7 +2048,229 @@ Gift:AddButton("Eat Everything", function(state)
 	eatingRunning = state
 	if state then activateRandomItems(4) end
 end)
+local SpecsTab = window:AddTab("spy ")
 
+SpecsTab:AddLabel("Player Stats:").TextSize = 24
+
+local playerToInspect = nil
+
+local emojiMap = {
+	["Time"] = utf8.char(),
+	["Stats"] = utf8.char(),
+	["Strength"] = utf8.char(),
+	["Rebirths"] = utf8.char(),
+	["Durability"] = utf8.char(),
+	["Kills"] = utf8.char(),
+	["Agility"] = utf8.char(),
+	["Evil Karma"] = utf8.char(),
+	["Good Karma"] = utf8.char(),
+	["Brawls"] = utf8.char(),
+}
+
+local statDefinitions = {
+	{ name = "Strength", statName = "Strength" },
+	{ name = "Rebirths", statName = "Rebirths" },
+	{ name = "Durability", statName = "Durability" },
+	{ name = "Agility", statName = "Agility" },
+	{ name = "Kills", statName = "Kills" },
+	{ name = "Evil Karma", statName = "evilKarma" },
+	{ name = "Good Karma", statName = "goodKarma" },
+	{ name = "Brawls", statName = "Brawls" },
+}
+
+local function getCurrentPlayers()
+	local playersList = {}
+	for _, p in ipairs(Players:GetPlayers()) do
+		table.insert(playersList, p)
+	end
+	return playersList
+end
+
+local specDropdown = SpecsTab:AddDropdown("Choose Player", function(text)
+	for _, player in ipairs(getCurrentPlayers()) do
+		local optionText = player.DisplayName .. " | " .. player.Name
+		if text == optionText then
+			playerToInspect = player
+			updateStatLabels(playerToInspect)
+			break
+		end
+	end
+end)
+
+for _, player in ipairs(getCurrentPlayers()) do
+	specDropdown:Add(player.DisplayName .. " | " .. player.Name)
+end
+
+Players.PlayerAdded:Connect(function(player)
+	specDropdown:Add(player.DisplayName .. " | " .. player.Name)
+end)
+
+Players.PlayerRemoving:Connect(function()
+	specDropdown:Clear()
+	for _, p in ipairs(getCurrentPlayers()) do
+		specDropdown:Add(p.DisplayName .. " | " .. p.Name)
+	end
+end)
+
+local playerNameLabel = SpecsTab:AddLabel("Name: N/A")
+playerNameLabel.TextSize = 20
+
+local playerUsernameLabel = SpecsTab:AddLabel("Username: N/A")
+playerUsernameLabel.TextSize = 20
+
+local statLabels = {}
+for _, info in ipairs(statDefinitions) do
+	statLabels[info.name] =
+		SpecsTab:AddLabel(emojiMap[info.name] .. " " .. info.name .. ": 0 (0)")
+	statLabels[info.name].TextSize = 20
+end
+
+local function formatNumber(n)
+	if n >= 1e15 then
+		return string.format("%.1fqa", n / 1e15)
+	elseif n >= 1e12 then
+		return string.format("%.1ft", n / 1e12)
+	elseif n >= 1e9 then
+		return string.format("%.1fb", n / 1e9)
+	elseif n >= 1e6 then
+		return string.format("%.1fm", n / 1e6)
+	elseif n >= 1e3 then
+		return string.format("%.1fk", n / 1e3)
+	else
+		return tostring(n)
+	end
+end
+
+local function formatWithCommas(n)
+	local formatted = tostring(n)
+	while true do
+		formatted, k = formatted:gsub("^(-?%d+)(%d%d%d)", "%1,%2")
+		if k == 0 then
+			break
+		end
+	end
+	return formatted
+end
+
+local function updateStatLabels(targetPlayer)
+	if not targetPlayer then
+		return
+	end
+
+	playerNameLabel.Text = "Name: " .. targetPlayer.DisplayName
+	playerUsernameLabel.Text = "Username: " .. targetPlayer.Name
+
+	local leaderstats = targetPlayer:FindFirstChild("leaderstats")
+	if not leaderstats then
+		return
+	end
+
+	for _, info in ipairs(statDefinitions) do
+		local statObject
+
+		if leaderstats:FindFirstChild(info.statName) then
+			statObject = leaderstats:FindFirstChild(info.statName)
+		elseif targetPlayer:FindFirstChild(info.statName) then
+			statObject = targetPlayer:FindFirstChild(info.statName)
+		end
+
+		if statObject then
+			local value = statObject.Value
+			local emoji = emojiMap[info.name] or ""
+			statLabels[info.name].Text = string.format(
+				"%s %s: %s (%s)",
+				emoji,
+				info.name,
+				formatNumber(value),
+				formatWithCommas(value)
+			)
+		else
+			statLabels[info.name].Text =
+				emojiMap[info.name] .. " " .. info.name .. ": 0 (0)"
+		end
+	end
+end
+
+task.spawn(function()
+	while true do
+		if playerToInspect then
+			updateStatLabels(playerToInspect)
+		end
+		task.wait(0.2)
+	end
+end)
+
+task.spawn(function()
+	while true do
+		if playerToInspect then
+			updateAdvancedStats(playerToInspect)
+		else
+			updateAdvancedStats(nil)
+		end
+		task.wait(0.1)
+	end
+end)
+
+local function checkCharacter()
+	if not Players.LocalPlayer.Character then
+		repeat
+			task.wait()
+		until Players.LocalPlayer.Character
+	end
+	return Players.LocalPlayer.Character
+end
+
+local function gettool()
+	for _, v in pairs(Players.LocalPlayer.Backpack:GetChildren()) do
+		if v.Name == "Punch" and Players.LocalPlayer.Character:FindFirstChild("Humanoid") then
+			Players.LocalPlayer.Character.Humanoid:EquipTool(v)
+		end
+	end
+
+	Players.LocalPlayer.muscleEvent:FireServer("punch", "leftHand")
+	Players.LocalPlayer.muscleEvent:FireServer("punch", "rightHand")
+end
+
+local function isPlayerAlive(player)
+	return player
+		and player.Character
+		and player.Character:FindFirstChild("HumanoidRootPart")
+		and player.Character:FindFirstChild("Humanoid")
+		and player.Character.Humanoid.Health > 0
+end
+
+local function killPlayer(target)
+	if not isPlayerAlive(target) then
+		return
+	end
+
+	local character = checkCharacter()
+	if character and character:FindFirstChild("LeftHand") then
+		pcall(function()
+			firetouchinterest(target.Character.HumanoidRootPart, character.LeftHand, 0)
+			firetouchinterest(target.Character.HumanoidRootPart, character.LeftHand, 1)
+			gettool()
+		end)
+	end
+end
+
+local strengthStartValue = 0
+local durabilityStartValue = 0
+local rebirthsStartValue = 0
+local killsStartValue = 0
+local brawlsStartValue = 0
+
+local strengthStartTime = 0
+local durabilityStartTime = 0
+local rebirthsStartTime = 0
+local killsStartTime = 0
+local brawlsStartTime = 0
+
+local strengthActive = false
+local durabilityActive = false
+local rebirthsActive = false
+local killsActive = false
+local brawlsActive = false
 local infoTab = window:AddTab("Info")
 infoTab:AddLabel("hecho por karma").TextSize = 20
 infoTab:AddLabel("https://discord.gg/5cpvPru5Td").TextSize = 20
