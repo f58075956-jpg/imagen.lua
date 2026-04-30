@@ -2426,43 +2426,6 @@ end)
 switch:Set(false)
 
 
-
-
--- Whitelist / Blacklist setup
-_G.whitelistedPlayers = _G.whitelistedPlayers or {}
-_G.blacklistedPlayers = _G.blacklistedPlayers or {}
-
-local function isWhitelisted(player)
-	for _, name in ipairs(_G.whitelistedPlayers) do
-		if name:lower() == player.Name:lower() then return true end
-	end
-	return false
-end
-
-local function isBlacklisted(player)
-	for _, name in ipairs(_G.blacklistedPlayers) do
-		if name:lower() == player.Name:lower() then return true end
-	end
-	return false
-end
-
-local function getPlayerDisplayText(player)
-	return player.DisplayName .. " | " .. player.Name
-end
-
--- Whitelist Dropdown
-local whitelistDropdown = KillingTab:AddDropdown("Add to Whitelist", function(selectedText)
-	local playerName = selectedText:match("| (.+)$")
-	if playerName then
-		playerName = playerName:gsub("^%s*(.-)%s*$", "%1")
-		for _, name in ipairs(_G.whitelistedPlayers) do
-			if name:lower() == playerName:lower() then return end
-		end
-		table.insert(_G.whitelistedPlayers, playerName)
-	end
-end)
-
--- Kill Everyone toggle
 local killSwitch = KillingTab:AddSwitch("Kill Everyone", function(bool)
 	_G.killAll = bool
 
