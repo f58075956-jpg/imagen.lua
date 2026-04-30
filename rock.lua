@@ -1903,6 +1903,236 @@ TimeDropdown:Add("Day")
 TimeDropdown:Add("Midnight")
 
 
+extraTab:AddButton("Equip Swift Samurai", function()
+    print("Boton presionado: equipando 8 Swift Samurai")
+
+    local LocalPlayer = game:GetService("Players").LocalPlayer
+    local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+    -- Primero desequipamos todo
+    local petsFolder = LocalPlayer:FindFirstChild("petsFolder")
+    if not petsFolder then return end
+
+    for _, folder in pairs(petsFolder:GetChildren()) do
+        if folder:IsA("Folder") then
+            for _, pet in pairs(folder:GetChildren()) do
+                ReplicatedStorage.rEvents.equipPetEvent:FireServer("unequipPet", pet)
+            end
+        end
+    end
+    task.wait(0.1)
+
+    -- Ahora equipamos mÃ¡ximo 8 "Swift Samurai"
+    local equipped = 0
+    local maxEquip = 8
+    for _, folder in pairs(petsFolder:GetChildren()) do
+        if folder:IsA("Folder") then
+            for _, pet in pairs(folder:GetChildren()) do
+                if pet.Name == "Swift Samurai" then
+                    ReplicatedStorage.rEvents.equipPetEvent:FireServer("equipPet", pet)
+                    equipped += 1
+                    print("Equipado Swift Samurai #" .. equipped)
+
+                    if equipped >= maxEquip then
+                        return -- salir cuando ya haya 8 equipados
+                    end
+                end
+            end
+        end
+    end
+
+    print("Se equiparon " .. equipped .. " Swift Samurai")
+end)
+
+extraTab:AddButton("Jungle lift", function()
+    local player = game.Players.LocalPlayer
+    local char = player.Character or player.CharacterAdded:Wait()
+    local hrp = char:WaitForChild("HumanoidRootPart")
+
+    -- Teletransportar al nuevo CFrame
+    hrp.CFrame = CFrame.new(-8652.8672, 29.2667, 2089.2617)
+    task.wait(0.2)
+
+    local VirtualInputManager = game:GetService("VirtualInputManager")
+    VirtualInputManager:SendKeyEvent(true, Enum.KeyCode.E, false, game)
+    task.wait(0.05)
+    VirtualInputManager:SendKeyEvent(false, Enum.KeyCode.E, false, game)
+end)
+
+local MusicTab = window:AddTab("M")
+
+local MP3_URL = ""
+local Playlist = {}
+local currentIndex = 0
+local isPaused = false
+local fileName = "GenesisPlaylist_"..player.Name..".txt"
+local tempIndex = 0
+local currentSound = nil
+
+if isfile(fileName) then
+	local data = readfile(fileName)
+	for url in string.gmatch(data, "[^,]+") do
+		table.insert(Playlist, url)
+	end
+else
+	writefile(fileName, "")
+end
+
+local function savePlaylist()
+	writefile(fileName, table.concat(Playlist, ","))
+end
+
+local function formatTime(sec)
+	sec = math.floor(sec or 0)
+	local m = math.floor(sec / 60)
+	local s = sec % 60
+	return string.format("%02d:%02d", m, s)
+end
+
+local TimeLabel = MusicTab:AddLabel("â±ï¸ 00:00 / 00:00")
+
+local function loadMP3(url)
+	if url == "" then return end
+	tempIndex = tempIndex + 1
+	local tempFile = "GenesisMusic_"..tempIndex..".mp3"
+
+	pcall(function()
+		if isfile(tempFile) then delfile(tempFile) end
+		writefile(tempFile, game:HttpGet(url))
+	end)
+
+	if currentSound then
+		currentSound:Destroy()
+	end
+
+	currentSound = Instance.new("Sound")
+	currentSound.Name = "GenesisMP3Sound"
+	currentSound.Parent = SoundService
+	currentSound.SoundId = getcustomasset(tempFile)
+	currentSound.Volume = 1
+	currentSound.Looped = false
+	currentSound:Play()
+	isPaused = false
+
+	-- Cuando termina la canciÃ³n, pasa a la siguiente
+	currentSound.Ended:Connect(function()
+		if not currentSound.Looped and not isPaused then
+			currentIndex = currentIndex + 1
+			if currentIndex > #Playlist then currentIndex = 1 end
+			loadMP3(Playlist[currentIndex])
+		end
+	end)
+end
+
+-- Bucle de actualizaciÃ³n de tiempo
+task.spawn(function()
+	while task.wait(0.1) do
+		if currentSound and currentSound:IsDescendantOf(SoundService) and currentSound.IsLoaded then
+			TimeLabel.Text = "â±ï¸ " .. formatTime(currentSound.TimePosition) .. " / " .. formatTime(currentSound.TimeLength)
+
+			-- Respaldo por si el evento Ended falla
+			if not currentSound.IsPlaying and not isPaused and currentSound.TimePosition > 0 and currentSound.TimePosition >= currentSound.TimeLength - 0.2 then
+				currentIndex = currentIndex + 1
+				if currentIndex > #Playlist then currentIndex = 1 end
+				loadMP3(Playlist[currentIndex])
+			end
+		end
+	end
+end)
+
+-- Controles
+MusicTab:AddTextBox(" MP3 URL", function(val)
+	MP3_URL = val
+end, {["clear"] = false})
+
+MusicTab:AddButton("Play", function()
+	if MP3_URL ~= "" then
+		loadMP3(MP3_URL)
+	end
+end)
+
+MusicTab:AddButton("Continue", function()
+	if currentSound then
+		if isPaused then
+			isPaused = false
+			currentSound:Resume()
+		else
+			currentSound:Play()
+		end
+	end
+end)
+
+MusicTab:AddButton("Pause", function()
+	if currentSound and currentSound.IsPlaying then
+		currentSound:Pause()
+		isPaused = true
+	end
+end)
+
+MusicTab:AddButton("Stop", function()
+	if currentSound then
+		currentSound:Stop()
+		isPaused = false
+	end
+end)
+
+MusicTab:AddTextBox("Volumen (0-5)", function(val)
+	if currentSound then
+		local num = tonumber(val)
+		if num then
+			currentSound.Volume = math.clamp(num, 0, 5)
+		end
+	end
+end, {["clear"] = false})
+
+MusicTab:AddButton("Toggle Loop", function()
+	if currentSound then
+		currentSound.Looped = not currentSound.Looped
+	end
+end)
+
+MusicTab:AddButton("Add to Playlist", function()
+	if MP3_URL ~= "" then
+		tempIndex = tempIndex + 1
+		local tempFile = "GenesisMusic_"..tempIndex..".mp3"
+		pcall(function()
+			if isfile(tempFile) then delfile(tempFile) end
+			writefile(tempFile, game:HttpGet(MP3_URL))
+		end)
+		table.insert(Playlist, MP3_URL)
+		savePlaylist()
+	end
+end)
+
+MusicTab:AddButton("Play Playlist", function()
+	if #Playlist > 0 then
+		currentIndex = 1
+		loadMP3(Playlist[currentIndex])
+	end
+end)
+
+MusicTab:AddButton("Next", function()
+	if #Playlist > 0 then
+		currentIndex = currentIndex + 1
+		if currentIndex > #Playlist then currentIndex = 1 end
+		loadMP3(Playlist[currentIndex])
+	end
+end)
+
+MusicTab:AddButton("Previous", function()
+	if #Playlist > 0 then
+		currentIndex = currentIndex - 1
+		if currentIndex < 1 then currentIndex = #Playlist end
+		loadMP3(Playlist[currentIndex])
+	end
+end)
+
+MusicTab:AddButton("Clear Playlist", function()
+	Playlist = {}
+	savePlaylist()
+	currentIndex = 0
+end)
+
 local Gift = window:AddTab("Auto Gift")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
