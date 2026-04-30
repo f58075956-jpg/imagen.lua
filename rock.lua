@@ -1902,10 +1902,7 @@ TimeDropdown:Add("Night")
 TimeDropdown:Add("Day")
 TimeDropdown:Add("Midnight")
 
-local autoLiftSwitch = y extraTab:AddSwitch("Auto Lift (Gamepass)", function(bool)
-	local Players = game:GetService("Players")
-	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local player = Players.LocalPlayer
+local autoLiftSwitch = extraTab:AddSwitch("Auto Lift (Gamepass)", function(bool)
 	local gamepassFolder = ReplicatedStorage.gamepassIds
 
 	if bool then
