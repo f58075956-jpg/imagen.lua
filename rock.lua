@@ -2299,7 +2299,7 @@ local killsActive = false
 local brawlsActive = false
 
 
-local KillingTab = window:AddTab("Killing")
+local KillingTab = window:AddTab("K")
 
 KillingTab:AddLabel("Misc:").TextSize = 22
 
