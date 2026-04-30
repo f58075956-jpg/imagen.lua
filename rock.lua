@@ -1903,10 +1903,36 @@ TimeDropdown:Add("Night")
 TimeDropdown:Add("Day")
 TimeDropdown:Add("Midnight")
 
+local autoLiftSwitch = y extraTab:AddSwitch("Auto Lift (Gamepass)", function(bool)
+	local Players = game:GetService("Players")
+	local ReplicatedStorage = game:GetService("ReplicatedStorage")
+	local player = Players.LocalPlayer
+	local gamepassFolder = ReplicatedStorage.gamepassIds
+
+	if bool then
+		for _, gamepass in pairs(gamepassFolder:GetChildren()) do
+			local value = Instance.new("IntValue")
+			value.Name = gamepass.Name
+			value.Value = gamepass.Value
+			value.Parent = player.ownedGamepasses
+		end
+	else
+		if player and player.ownedGamepasses then
+			for _, gamepass in pairs(gamepassFolder:GetChildren()) do
+				local ownedPass = player.ownedGamepasses:FindFirstChild(gamepass.Name)
+				if ownedPass and ownedPass.Value == gamepass.Value then
+					ownedPass:Destroy()
+				end
+			end
+		end
+	end
+end)
+
 local Gift = window:AddTab("Auto Gift")
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
 local RS = game:GetService("ReplicatedStorage")
+
 
 -- Labels for item counts
 Gift:AddLabel("Gifting Protein egg:").TextSize = 22
