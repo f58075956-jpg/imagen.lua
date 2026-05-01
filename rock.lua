@@ -1348,23 +1348,24 @@ end
 local function doRebirth()
     local rebirths = rebirthsStat.Value
     local strengthTarget = 5000 + (rebirths * 2550)
-    
+
+    -- 🔥 REPS OPTIMIZADOS
     while isRunning and player.leaderstats.Strength.Value < strengthTarget do
-        local reps = player.MembershipType == Enum.MembershipType.Premium and 8 or 14
-        for _ = 1, reps do
+        
+        for i = 1, 4 do -- ⚡ cantidad de reps por ciclo (3–5 recomendado)
             muscleEvent:FireServer("rep")
         end
-        task.wait(0.02)
+
+        task.wait(0.02) -- ⚡ delay CLAVE (no lo bajes mucho)
     end
-    
+
+    -- 🔁 REBIRTH
     if isRunning and player.leaderstats.Strength.Value >= strengthTarget then
-        managePets("Tribal Overlord")
-        task.wait(0.25)
-        
         local before = rebirthsStat.Value
+
         repeat
             replicatedStorage.rEvents.rebirthRemote:InvokeServer("rebirthRequest")
-            task.wait(0.05)
+            task.wait(0.1)
         until rebirthsStat.Value > before or not isRunning
     end
 end
