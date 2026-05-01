@@ -1198,231 +1198,76 @@ FolderDurabilidad:AddButton("Calculate Durability", function()
 end)
 
 
-local FastRebTab = window:AddTab("Fast Rebirth")
 
-local function formatNumber(num)
-    if num >= 1e15 then return string.format("%.2fQ", num/1e15) end
-    if num >= 1e12 then return string.format("%.2fT", num/1e12) end
-    if num >= 1e9 then return string.format("%.2fB", num/1e9) end
-    if num >= 1e6 then return string.format("%.2fM", num/1e6) end
-    if num >= 1e3 then return string.format("%.2fK", num/1e3) end
-    return string.format("%.0f", num)
-end
-
-local isRunning = false
-local startTime = 0
-local totalElapsed = 0
-local initialRebirths = rebirthsStat.Value
-local lastPaceUpdate = 0
-
-local serverLabel = FastRebTab:AddLabel("Time:")
-serverLabel.TextSize = 20
-local timeLabel = FastRebTab:AddLabel("0d 0h 0m 0s - Inactive")
-local paceLabel = FastRebTab:AddLabel("Pace: 0 / Hour | 0 / Day | 0 / Week")
-local averagePaceLabel = FastRebTab:AddLabel("Average Pace: 0 / Hour | 0 / Day | 0 / Week")
-
-paceLabel.TextSize = 17
-averagePaceLabel.TextSize = 17
-
-
-timeLabel.TextSize = 17
-timeLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
-paceLabel.TextSize = 17
-
-local rebirthsStatsLabel = FastRebTab:AddLabel("Rebirths: "..formatNumber(rebirthsStat.Value).." | Gained: 0")
-rebirthsStatsLabel.TextSize = 17
-
-
-local lastRebirthTime = tick()
-local lastRebirthValue = rebirthsStat.Value
-
-local function updateRebirthsLabel()
-    local gained = rebirthsStat.Value - initialRebirths
-    rebirthsStatsLabel.Text = string.format("Rebirths: %s | Gained: %s", 
-                                           formatNumber(rebirthsStat.Value), 
-                                           formatNumber(gained))
-end
-
-local function updateUI(forceUpdate)
-    local currentTime = tick()
-    local elapsed = isRunning and (currentTime - startTime + totalElapsed) or totalElapsed
-    
-    local days = math.floor(elapsed / 86400)
-    local hours = math.floor((elapsed % 86400) / 3600)
-    local minutes = math.floor((elapsed % 3600) / 60)
-    local seconds = math.floor(elapsed % 60)
-    
-    timeLabel.Text = string.format("%dd %dh %dm %ds - %s", days, hours, minutes, seconds,
-                                 isRunning and "Rebirthing" or "Paused")
-    timeLabel.TextColor3 = isRunning and Color3.fromRGB(50, 255, 50) or Color3.fromRGB(255, 50, 50)
-end
-
-local lastRebirthTime = tick()
-local lastRebirthValue = rebirthsStat.Value
-
-local paceHistoryHour = {}
-local paceHistoryDay = {}
-local paceHistoryWeek = {}
-
-local maxHistoryLength = 20
-
-local rebirthCount = 0
-
-local function calculatePaceOnRebirth()
-    rebirthCount = rebirthCount + 1
-    
-    -- Erst ab dem 2. Rebirth berechnen
-    if rebirthCount < 2 then
-        lastRebirthTime = tick()
-        lastRebirthValue = rebirthsStat.Value
-        return
-    end
-
-    local now = tick()
-    local gained = rebirthsStat.Value - lastRebirthValue
-
-    if gained > 0 then
-        local avgTimePerRebirth = (now - lastRebirthTime) / gained
-        local paceHour = 3600 / avgTimePerRebirth
-        local paceDay = 86400 / avgTimePerRebirth
-        local paceWeek = 604800 / avgTimePerRebirth
-
-        paceLabel.Text = string.format("Pace: %s / Hour | %s / Day | %s / Week",
-            formatNumber(paceHour), formatNumber(paceDay), formatNumber(paceWeek))
-
-        table.insert(paceHistoryHour, paceHour)
-        table.insert(paceHistoryDay, paceDay)
-        table.insert(paceHistoryWeek, paceWeek)
-
-        if #paceHistoryHour > maxHistoryLength then
-            table.remove(paceHistoryHour, 1)
-            table.remove(paceHistoryDay, 1)
-            table.remove(paceHistoryWeek, 1)
-        end
-
-        local function average(tbl)
-            local sum = 0
-            for _, v in ipairs(tbl) do
-                sum = sum + v
-            end
-            return #tbl > 0 and (sum / #tbl) or 0
-        end
-
-        local avgHour = average(paceHistoryHour)
-        local avgDay = average(paceHistoryDay)
-        local avgWeek = average(paceHistoryWeek)
-
-        averagePaceLabel.Text = string.format("Average Pace: %s / Hour | %s / Day | %s / Week",
-            formatNumber(avgHour), formatNumber(avgDay), formatNumber(avgWeek))
-
-        lastRebirthTime = now
-        lastRebirthValue = rebirthsStat.Value
-    end
-end
-
-
-
-
-rebirthsStat:GetPropertyChangedSignal("Value"):Connect(function()
-    calculatePaceOnRebirth()
-    updateRebirthsLabel()
-end)
-
-local function managePets(petName)
-    for _, folder in pairs(player.petsFolder:GetChildren()) do
-        if folder:IsA("Folder") then
-            for _, pet in pairs(folder:GetChildren()) do
-                replicatedStorage.rEvents.equipPetEvent:FireServer("unequipPet", pet)
-            end
-        end
-    end
-    task.wait(0.1)
-    
-    for _, pet in pairs(player.petsFolder.Unique:GetChildren()) do
-        if pet.Name == petName then
-            replicatedStorage.rEvents.equipPetEvent:FireServer("equipPet", pet)
-        end
-    end
-end
-
-local function doRebirth()
-    local rebirths = rebirthsStat.Value
-    local strengthTarget = 5000 + (rebirths * 2550)
-
-    -- 🔥 REPS OPTIMIZADOS
-    while isRunning and player.leaderstats.Strength.Value < strengthTarget do
-        
-        for i = 1, 4 do -- ⚡ cantidad de reps por ciclo (3–5 recomendado)
-            muscleEvent:FireServer("rep")
-        end
-
-        task.wait(0.02) -- ⚡ delay CLAVE (no lo bajes mucho)
-    end
-
-    -- 🔁 REBIRTH
-    if isRunning and player.leaderstats.Strength.Value >= strengthTarget then
-        local before = rebirthsStat.Value
-
-        repeat
-            replicatedStorage.rEvents.rebirthRemote:InvokeServer("rebirthRequest")
-            task.wait(0.1)
-        until rebirthsStat.Value > before or not isRunning
-    end
-end
-
-local function fastRebirthLoop()
-    while isRunning do
-        managePets("Swift Samurai")
-        doRebirth()
-        task.wait(0.5)
-    end
-end
-
-FastRebTab:AddLabel("")
-
-local RebirthLabel = FastRebTab:AddLabel("Rebirthing:")
-RebirthLabel.TextSize = 20
-
-FastRebTab:AddSwitch("Fast Rebirth", function(state)
-    isRunning = state
-    
+RebirthFolder:AddSwitch("Fast Rebirths", function(state)
+    getgenv().AutoFarming = state
     if state then
-        startTime = tick()
-        task.spawn(fastRebirthLoop)
-    else
-        totalElapsed = totalElapsed + (tick() - startTime)
-        updateUI(true)
-    end
-end)
-
-rebirthsStat:GetPropertyChangedSignal("Value"):Connect(function()
-    if isRunning then
-        calculatePace()
-    end
-    updateRebirthsLabel() 
-end)
-
-task.spawn(function()
-    while true do
-        updateUI(false)
-        task.wait(0.1)
-    end
-end)
-
-
-local running = false
-local thread = nil
-
-local sizeSwitch = FastRebTab:AddSwitch("Set Size 1", function(bool)
-    running = bool
-    if running then
-        thread = coroutine.create(function()
-            while running do
-                game:GetService("ReplicatedStorage").rEvents.changeSpeedSizeRemote:InvokeServer("changeSize", 1)
-                wait(0.01)
+        task.spawn(function()
+            local a = ReplicatedStorage
+            local c = LocalPlayer
+            local function equipPetByName(name)
+                local folderPets = c:FindFirstChild("petsFolder")
+                if not folderPets then return end
+                for _, folder in pairs(folderPets:GetChildren()) do
+                    if folder:IsA("Folder") then
+                        for _, pet in pairs(folder:GetChildren()) do
+                            if pet.Name == name then
+                                a.rEvents.equipPetEvent:FireServer("equipPet", pet)
+                            end
+                        end
+                    end
+                end
+            end
+            local function unequipAllPets()
+                local f = c:FindFirstChild("petsFolder")
+                if not f then return end
+                for _, folder in pairs(f:GetChildren()) do
+                    if folder:IsA("Folder") then
+                        for _, pet in pairs(folder:GetChildren()) do
+                            a.rEvents.equipPetEvent:FireServer("unequipPet", pet)
+                        end
+                    end
+                end
+                task.wait(0.1)
+            end
+            local function getGoldenRebirthCount()
+                local g = c:FindFirstChild("ultimatesFolder")
+                if g and g:FindFirstChild("Golden Rebirth") then
+                    return g["Golden Rebirth"].Value
+                end
+                return 0
+            end
+            local function getStrengthRequiredForRebirth()
+                local rebirths = c.leaderstats.Rebirths.Value
+                local baseStrength = 10000 + (5000 * rebirths)
+                local golden = getGoldenRebirthCount()
+                if golden >= 1 and golden <= 5 then
+                    baseStrength = baseStrength * (1 - golden * 0.1)
+                end
+                return math.floor(baseStrength)
+            end
+            while getgenv().AutoFarming do
+                local requiredStrength = getStrengthRequiredForRebirth()
+                unequipAllPets()
+                equipPetByName("Swift Samurai")
+                while c.leaderstats.Strength.Value < requiredStrength and getgenv().AutoFarming do
+                    for _ = 1, 10 do
+                        c.muscleEvent:FireServer("rep")
+                    end
+                    task.wait()
+                end
+                if getgenv().AutoFarming then
+                    unequipAllPets()
+                    equipPetByName("Tribal Overlord")
+                    local oldRebirths = c.leaderstats.Rebirths.Value
+                    repeat
+                        a.rEvents.rebirthRemote:InvokeServer("rebirthRequest")
+                        task.wait(0.1)
+                    until c.leaderstats.Rebirths.Value > oldRebirths or not getgenv().AutoFarming
+                end
+                task.wait()
             end
         end)
-        coroutine.resume(thread)
     end
 end)
 
