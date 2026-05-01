@@ -1197,9 +1197,9 @@ FolderDurabilidad:AddButton("Calculate Durability", function()
     end
 end)
 
+local Rebirth = window:AddTab("farm/packs")
 
-
-local RebirthFolder = AutoFarm:AddFolder("Rebirth")
+local RebirthFolder = Rebirth:AddFolder("Rebirth")
 
 -- 🔁 Fast Rebirths
 RebirthFolder:AddSwitch("Fast Rebirths", function(state)
