@@ -1199,6 +1199,9 @@ end)
 
 
 
+local RebirthFolder = AutoFarm:AddFolder("Rebirth")
+
+-- 🔁 Fast Rebirths
 RebirthFolder:AddSwitch("Fast Rebirths", function(state)
     getgenv().AutoFarming = state
     if state then
