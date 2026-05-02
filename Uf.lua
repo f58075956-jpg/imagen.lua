@@ -142,11 +142,6 @@ local function farmRock(targetDurability)
                                 firetouchinterest(rock, left, 1)
 								firetouchinterest(rock, left, 0)
 								firetouchinterest(rock, left, 1)
-								firetouchinterest(rock, left, 0)
-                                firetouchinterest(rock, left, 1)
-								firetouchinterest(rock, left, 0)
-								firetouchinterest(rock, left, 1)
-								firetouchinterest(rock, left, 0)
                             end
 
                             -- 🔥 punch real
