@@ -31,7 +31,7 @@ local library = loadstring(game:HttpGet("https://pastebin.com/raw/wqJ8PvkW", tru
 
 local window = library:AddWindow(title, {
     main_color = Color3.fromRGB(0, 0, 0),
-    min_size = Vector2.new(300, 450),
+    min_size = Vector2.new(430, 700),
     can_resize = true,
 })
 
