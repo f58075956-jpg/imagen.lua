@@ -174,7 +174,7 @@ end
 local Players = game:GetService("Players")
 local player = game.Players.LocalPlayer
 
-local title = ("LMR ON TOP")
+local title = ("ZIX DOM")
 
 
 local library = loadstring(game:HttpGet("https://pastebin.com/raw/wqJ8PvkW", true))()
