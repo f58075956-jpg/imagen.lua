@@ -180,7 +180,7 @@ local title = ("LMR ON TOP")
 local library = loadstring(game:HttpGet("https://pastebin.com/raw/wqJ8PvkW", true))()
 
 local window = library:AddWindow(title, {
-    main_color = Color3.fromRGB(0, 0, 0),
+    main_color = Color3.fromRGB(135, 206, 235),
     min_size = Vector2.new(800, 870),
     can_resize = true,
 })
