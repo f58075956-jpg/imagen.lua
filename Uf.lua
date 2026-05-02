@@ -114,7 +114,7 @@ local function farmRock(targetDurability)
 
                         if rock then
                             -- 💀 MULTI TOUCH (RANGE BOOST)
-                            for i = 1000, 1200 do
+                            for i = 19, 27 do
                                 firetouchinterest(rock, right, 0)
                                 firetouchinterest(rock, right, 1)
                                 firetouchinterest(rock, left, 0)
