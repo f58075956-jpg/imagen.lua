@@ -1122,7 +1122,7 @@ end)
 
 local Rebirth = window:AddTab("farm/packs")
 
-local fastStrengthFolder = Rebith:AddFolder("Fast Rebirths Functions")
+local fastStrengthFolder = Rebirth:AddFolder("Fast Rebirths Functions")
 
 local leaderstats = LocalPlayer:WaitForChild("leaderstats")
 local rebirthsStat = leaderstats:WaitForChild("Rebirths")
