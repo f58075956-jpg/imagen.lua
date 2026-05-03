@@ -1122,7 +1122,6 @@ end)
 
 local Rebirth = window:AddTab("farm/packs")
 
-local fastStrengthFolder = Rebirth:AddFolder("Fast Rebirths Functions")
 
 local leaderstats = LocalPlayer:WaitForChild("leaderstats")
 local rebirthsStat = leaderstats:WaitForChild("Rebirths")
@@ -1216,7 +1215,7 @@ local function getStrengthRequiredForRebirth()
 end
 
 -- Switch en la library
-fastStrengthFolder:AddSwitch("Fast Rebirth", function(state)
+Rebirth:AddSwitch("Fast Rebirth", function(state)
     getgenv().AutoFarming = state
 
     if state then
