@@ -1124,17 +1124,14 @@ local Rebirth = window:AddTab("farm/packs")
 
 Rebirth:AddLabel("Rebiths Gained").TextSize = 23
 
-
-local fastStrengthFolder = Rebirth:AddFolder("Fast Rebirths Functions")
-
 local leaderstats = LocalPlayer:WaitForChild("leaderstats")
 local rebirthsStat = leaderstats:WaitForChild("Rebirths")
 
-local footerTimeLabel = fastStrengthFolder:AddLabel("0d 0h 0m 0s")
+local footerTimeLabel = Rebirth:AddLabel("0d 0h 0m 0s")
 footerTimeLabel.TextSize = 18
-local footerRebirthsLabel = fastStrengthFolder:AddLabel("Rebirths: 0")
+local footerRebirthsLabel = Rebirth:AddLabel("Rebirths: 0")
 footerRebirthsLabel.TextSize = 18
-local footerRebirthsGainedLabel = fastStrengthFolder:AddLabel("Rebirths Gained: 0")
+local footerRebirthsGainedLabel = Rebirth:AddLabel("Rebirths Gained: 0")
 footerRebirthsGainedLabel.TextSize = 18
 
 local startTime = tick()
@@ -1219,7 +1216,7 @@ local function getStrengthRequiredForRebirth()
 end
 
 -- Switch en la library
-fastStrengthFolder:AddSwitch("Fast Rebirth", function(state)
+Rebirth:AddSwitch("Fast Rebirth", function(state)
     getgenv().AutoFarming = state
 
     if state then
