@@ -239,7 +239,7 @@ local selectedAura = ""
 -- Get all pets and auras
 local allPets, allAuras = getAllPetsAndAuras()
 
-pets:AddLabel("=== Buy pets and auras ===")
+pets:AddLabel("--- Buy pets and auras ---")
 
 -- Pet dropdown
 local petDropdown = pets:AddDropdown("Select pet", function(text)
@@ -316,7 +316,7 @@ auraDropdown:Add("Muscle King (Unique)")
 auraDropdown:Add("Entropic Blast (Unique)")
 auraDropdown:Add("Eternal Megastrike (Unique)")
 
-pets:AddLabel("=== System to buys===")
+pets:AddLabel("--- System to buys---")
 
 -- Auto buy pet toggle
 pets:AddSwitch("Auto Buy Pet", function(bool)
@@ -1126,11 +1126,11 @@ local Rebirth = window:AddTab("farm/packs")
 local leaderstats = LocalPlayer:WaitForChild("leaderstats")
 local rebirthsStat = leaderstats:WaitForChild("Rebirths")
 
-local footerTimeLabel = fastStrengthFolder:AddLabel("0d 0h 0m 0s")
+local footerTimeLabel = Rebirth:AddLabel("0d 0h 0m 0s")
 footerTimeLabel.TextSize = 18
-local footerRebirthsLabel = fastStrengthFolder:AddLabel("Rebirths: 0")
+local footerRebirthsLabel = Rebirth:AddLabel("Rebirths: 0")
 footerRebirthsLabel.TextSize = 18
-local footerRebirthsGainedLabel = fastStrengthFolder:AddLabel("Rebirths Gained: 0")
+local footerRebirthsGainedLabel = Rebirth:AddLabel("Rebirths Gained: 0")
 footerRebirthsGainedLabel.TextSize = 18
 
 local startTime = tick()
@@ -1219,7 +1219,7 @@ Rebirth:AddSwitch("Fast Rebirth", function(state)
     getgenv().AutoFarming = state
 
     if state then
-        warn("âš¡ AutoFarming ACTIVADO")
+        warn("AutoFarming ACTIVADO")
 
         task.spawn(function()
             while getgenv().AutoFarming do
