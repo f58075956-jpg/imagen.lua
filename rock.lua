@@ -94,7 +94,7 @@ local player = game.Players.LocalPlayer
 local title = ("ZIX DOM")
 
 
-local library = loadstring(game:HttpGet("https://raw.githubusercontent.com/Footagesus/WindUI/main/dist/main.lua", true))()
+local library = loadstring(game:HttpGet("https://pastebin.com/raw/wqJ8PvkW", true))()
 
 local window = library:AddWindow(title, {
     main_color = Color3.fromRGB(0, 0, 0),
