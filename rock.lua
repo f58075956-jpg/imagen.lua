@@ -1164,9 +1164,7 @@ updateRebirths()
 
 getgenv().AutoFarming = false
 
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local Players = game:GetService("Players")
-local LocalPlayer = Players.LocalPlayer
+
 
 -- ConfiguraciÃ³n de mascotas
 local FarmPet = "Swift Samurai"
