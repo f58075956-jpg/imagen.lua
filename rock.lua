@@ -1181,7 +1181,7 @@ RebirthFolder:AddSwitch("Fast Rebirths", function(state)
                     for _ = 1, 10 do
                         c.muscleEvent:FireServer("rep")
                     end
-                    task.wait()
+                    task.wait(0)
                 end
                 if getgenv().AutoFarming then
                     unequipAllPets()
@@ -1192,7 +1192,7 @@ RebirthFolder:AddSwitch("Fast Rebirths", function(state)
                         task.wait(0.1)
                     until c.leaderstats.Rebirths.Value > oldRebirths or not getgenv().AutoFarming
                 end
-                task.wait()
+                task.wait(0.1)
             end
         end)
     end
