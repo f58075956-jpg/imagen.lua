@@ -2181,11 +2181,13 @@ end)
 
 task.spawn(function()
 	while true do
-		if playerToInspect then
-    updateAdvancedStats(playerToInspect)
-else
-    updateAdvancedStats(nil)
-			end
+		pcall(function()
+    if playerToInspect then
+        updateAdvancedStats(playerToInspect)
+    else
+        updateAdvancedStats(nil)
+    end
+end)
 		task.wait(0.1)
 	end
 end)
