@@ -1497,29 +1497,6 @@ local UIS = game:GetService("UserInputService")
 
 local extraTab = window:AddTab("Extra")
 
---------------------------------------------------
--- 🛡️ ANTI FLING
---------------------------------------------------
-local antiFlingConn
-local function onAntiFling(state)
-    if state then
-        antiFlingConn = RunService.Heartbeat:Connect(function()
-            local hrp = char:FindFirstChild("HumanoidRootPart")
-            if hrp then
-                hrp.Velocity = Vector3.zero
-                hrp.RotVelocity = Vector3.zero
-            end
-        end)
-    else
-        if antiFlingConn then
-            antiFlingConn:Disconnect()
-            antiFlingConn = nil
-        end
-    end
-end
-
-local AntiFlingSwitch = extraTab:AddSwitch("Anti Fling", onAntiFling)
-AntiFlingSwitch:Set(true)
 
 --------------------------------------------------
 -- 🔒 LOCK POSITION
