@@ -1504,8 +1504,6 @@ local antiFlingConn
 local function onAntiFling(state)
     if state then
         antiFlingConn = RunService.Heartbeat:Connect(function()
-            local char = LocalPlayer.Character
-            if not char then return end
             local hrp = char:FindFirstChild("HumanoidRootPart")
             if hrp then
                 hrp.Velocity = Vector3.zero
