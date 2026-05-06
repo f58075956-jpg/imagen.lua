@@ -93,8 +93,15 @@ local player = game.Players.LocalPlayer
 
 local title = ("ZIX DOM")
 
+local success, library = pcall(function()
+    return loadstring(game:HttpGet("https://pastebin.com/raw/wqJ8PvkW"))()
+end)
 
-local library = loadstring(game:HttpGet("https://pastebin.com/raw/wqJ8PvkW", true))()
+if not success or not library then
+    warn("No se pudo cargar la librería")
+    return
+end
+
 
 local window = library:AddWindow(title, {
     main_color = Color3.fromRGB(0, 0, 0),
