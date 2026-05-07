@@ -1,25 +1,20 @@
+repeat task.wait() until game:IsLoaded()
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local MarketplaceService = game:GetService("MarketplaceService")
 local UserInputService = game:GetService("UserInputService")
+local VirtualInputManager = game:GetService("VirtualInputManager")
+local RunService = game:GetService("RunService")
+local Lighting = game:GetService("Lighting")
+local SoundService = game:GetService("SoundService")
 
 local player = Players.LocalPlayer
+local LP = player
+local LocalPlayer = player
 
-print("Script cargado correctamente")
--- 🔥 TU SCRIPT VA ACÁ 🔥
-local player = game.Players.LocalPlayer
-local VirtualInputManager = game:GetService("VirtualInputManager")
-local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local muscleEvent = player:WaitForChild("muscleEvent")
-local leaderstats = player:WaitForChild("leaderstats")
-local rebirthsStat = leaderstats:WaitForChild("Rebirths")
-
-local function getCharacter()
-    return player.Character or player.CharacterAdded:Wait()
-end
-
--- prevenir nil en leaderstats
--- ✅ CÓDIGO ARREGLADO:
-local leaderstats = player:WaitForChild("leaderstats") -- Espera infinito hasta que aparezca
+repeat task.wait() until player.Character
+repeat task.wait() until player:FindFirstChild("leaderstats")
 local rebirthsStat = leaderstats and leaderstats:FindFirstChild("Rebirths")
 
 -- Si no encuentra leaderstats, el script no debe seguir intentando cargar las stats
@@ -30,7 +25,7 @@ end
 local Players = game:GetService("Players")
 local player = game.Players.LocalPlayer
 
-local title = ("ZIX DOM")
+local title = ("script")
 
 local success, library = pcall(function()
     return loadstring(game:HttpGet("https://pastebin.com/raw/wqJ8PvkW"))()
