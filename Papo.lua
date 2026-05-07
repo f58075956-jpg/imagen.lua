@@ -1,4 +1,11 @@
-  -- 🔥 TU SCRIPT VA ACÁ 🔥
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
+
+local player = Players.LocalPlayer
+
+print("Script cargado correctamente")
+-- 🔥 TU SCRIPT VA ACÁ 🔥
 local player = game.Players.LocalPlayer
 local VirtualInputManager = game:GetService("VirtualInputManager")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
