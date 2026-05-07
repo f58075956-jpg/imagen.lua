@@ -1576,8 +1576,7 @@ extraTab:AddButton("Equip Swift Samurai", function()
                     end
                 end
             end
-        end
-    end
+		end
 
     print("Se equiparon " .. equipped .. " Swift Samurai")
 end)
